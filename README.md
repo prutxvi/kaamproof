@@ -100,7 +100,7 @@ npm run check
 npm test
 ```
 
-The verification record reports the actual checks performed, including browser uploads, missing-to-reviewed transitions, offline reload and a real local model call. It does not claim hardware benchmarks or validated detection accuracy. CI is supplied but has not run on GitHub because the remote repository has not yet been created.
+The verification record reports the actual checks performed, including browser uploads, missing-to-reviewed transitions, offline reload and a real local model call. It does not claim hardware benchmarks or validated detection accuracy. See [GitHub Actions](https://github.com/prutxvi/kaamproof/actions) for remote CI results.
 
 ## Data and operating limits
 
