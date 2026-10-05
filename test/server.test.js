@@ -1,0 +1,12 @@
+import {before,after,test} from 'node:test';
+import assert from 'node:assert/strict';
+import {server} from '../server.js';
+let base;
+before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}`;});
+after(async()=>{await new Promise(resolve=>server.close(resolve));});
+test('app shell is served with restrictive headers',async()=>{const r=await fetch(base);assert.equal(r.status,200);assert.match(r.headers.get('content-security-policy'),/default-src 'self'/);assert.match(await r.text(),/KaamProof/);});
+test('unlisted repository files are not exposed',async()=>{const r=await fetch(`${base}/.git/config`);assert.equal(r.status,404);});
+test('foreign origins cannot invoke extraction',async()=>{const r=await fetch(`${base}/api/extract`,{method:'POST',headers:{Origin:'https://example.com'},body:'{}'});assert.equal(r.status,403);});
+test('invalid input is rejected before any model request',async()=>{const r=await fetch(`${base}/api/extract`,{method:'POST',body:JSON.stringify({notes:''})});assert.equal(r.status,400);});
+test('malformed JSON is rejected',async()=>{const r=await fetch(`${base}/api/extract`,{method:'POST',body:'{'});assert.equal(r.status,400);});
+test('oversized requests are rejected',async()=>{const r=await fetch(`${base}/api/extract`,{method:'POST',body:JSON.stringify({notes:'a'.repeat(17000)})});assert.equal(r.status,413);});

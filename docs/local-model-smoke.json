@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-05",
+  "fixture": "Synthetic technician note",
+  "status": 200,
+  "input": {
+    "notes": "Cleaned the indoor filter. Customer was absent. Outlet temperature was not measured."
+  },
+  "result": {
+    "claims": [
+      {
+        "text": "Cleaned the indoor filter.",
+        "quote": "Cleaned the indoor filter.",
+        "source": "Technician note",
+        "verification": "Human review required"
+      },
+      {
+        "text": "Customer was absent.",
+        "quote": "Customer was absent.",
+        "source": "Technician note",
+        "verification": "Human review required"
+      },
+      {
+        "text": "Outlet temperature was not measured.",
+        "quote": "Outlet temperature was not measured.",
+        "source": "Technician note",
+        "verification": "Human review required"
+      }
+    ],
+    "model": "qwen3:0.6b",
+    "elapsedMs": 229,
+    "location": "Local server / laptop",
+    "input": "Text only; photos and audio are not analysed"
+  }
+}

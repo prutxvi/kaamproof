@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {checkJob,validateDraft,buildReport} from '../src/core.js';
+const complete=()=>({scope:'Clean filter',notes:'Cleaned filter',photos:[{kind:'before'},{kind:'after'}],reading:'18.2',acknowledged:true,approved:false});
+test('a completion claim never fills missing evidence',()=>{const j=complete();j.notes='Service complete';j.photos=[];j.reading='';j.acknowledged=false;assert.deepEqual(checkJob(j).gaps.map(g=>g.id),['before','after','reading','acknowledgement']);});
+test('complete records still require human review',()=>{const j=complete();assert.equal(checkJob(j).status,'Ready for review');j.approved=true;assert.equal(checkJob(j).status,'Reviewed');});
+test('invalid readings are gaps, not accepted measurements',()=>{for(const value of ['', 'NaN','81','-21']){const j=complete();j.reading=value;assert.ok(checkJob(j).gaps.some(g=>g.id==='reading'));}});
+test('unsupported model source quotes are rejected',()=>{assert.throws(()=>validateDraft({claims:[{text:'Safe to operate',quote:'safe'}]},'Cleaned filter'));});
+test('empty source quotes and malformed claim lists are rejected',()=>{assert.throws(()=>validateDraft({claims:[{text:'Done',quote:''}]},'Done'));assert.throws(()=>validateDraft({},'Done'));});
+test('source-linked claims retain human review requirement',()=>{const result=validateDraft({claims:[{text:'Filter cleaned',quote:'Cleaned filter'}]},'Cleaned filter.');assert.equal(result.claims[0].verification,'Human review required');});
+test('model paraphrases cannot misrepresent a source excerpt',()=>{const result=validateDraft({claims:[{text:'Job finished safely',quote:'Customer was absent'}]},'Customer was absent');assert.equal(result.claims[0].text,'Customer was absent');});
+test('draft exports retain gaps and do not certify workmanship',()=>{const j=complete();j.photos=[];const r=buildReport(j);assert.equal(r.review.ready,false);assert.match(r.disclaimer,/do not certify/);});
